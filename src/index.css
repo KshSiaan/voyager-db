@@ -1,0 +1,94 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.ant-layout-sider-trigger span svg {
+  color: #7f6dd5 !important;
+}
+.ant-layout-sider-trigger {
+  background: white !important;
+  border-top: #f4f2fd solid 1px !important;
+}
+:where(.css-dev-only-do-not-override-1hpnbz2).ant-menu-light
+  .ant-menu-item-selected,
+:where(.css-dev-only-do-not-override-1hpnbz2).ant-menu-light
+  > .ant-menu
+  .ant-menu-item-selected {
+  background-color: #f4f2fd;
+  color: #000000 !important;
+}
+.ant-layout-sider-children {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+aside.ant-layout-sider.ant-layout-sider-dark.bg-white.css-dev-only-do-not-override-1hpnbz2 {
+  flex: 0 0 15% !important;
+  max-width: 15% !important;
+  min-width: 15% !important;
+  width: 15% !important;
+}
+.ant-modal-footer {
+  display: none !important;
+}
+button.ant-modal-close {
+  display: none !important;
+}
+:where(.css-dev-only-do-not-override-1hpnbz2).ant-menu-light
+  .ant-menu-submenu-selected
+  > .ant-menu-submenu-title,
+:where(.css-dev-only-do-not-override-1hpnbz2).ant-menu-light
+  > .ant-menu
+  .ant-menu-submenu-selected
+  > .ant-menu-submenu-title {
+  color: #8c78ea !important;
+}
+.personalImageUploader
+  :where(
+    .css-dev-only-do-not-override-1hpnbz2
+  ).ant-upload-wrapper.ant-upload-picture-card-wrapper
+  .ant-upload.ant-upload-select,
+:where(
+    .css-dev-only-do-not-override-1hpnbz2
+  ).ant-upload-wrapper.ant-upload-picture-circle-wrapper
+  .ant-upload.ant-upload-select {
+  width: 250px !important;
+  height: 250px !important;
+}
+.ant-upload-list.ant-upload-list-picture-card {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  margin-top: 24px !important;
+}
+
+.custom-select {
+  appearance: none; /* Hide the default arrow */
+  background: url("./assets/icons/down-small.svg") no-repeat right 10px center !important; /* Use your arrow icon */
+  background-size: 12px; /* Adjust size */
+  /* Border color */
+  padding: 10px 30px; /* Add padding to the right for the arrow */
+  border-radius: 8px; /* Adjust border radius */
+}
+.addQuestImageUpload .ant-upload-list.ant-upload-list-picture-card {
+  margin-top: 0 !important;
+}
+.ant-otp.ant-otp-lg.css-dev-only-do-not-override-1hpnbz2 {
+  width: 100% !important;
+}
+:where(.css-dev-only-do-not-override-1hpnbz2).ant-layout.ant-layout-has-sider
+  > .ant-layout,
+:where(.css-dev-only-do-not-override-1hpnbz2).ant-layout.ant-layout-has-sider
+  > .ant-layout-content {
+  height: 100vh !important;
+  overflow: scroll !important;
+}
+.ant-notification-notice-message {
+  font-weight: 700 !important;
+}
+
+aside.ant-layout-sider.ant-layout-sider-dark.bg-\[\#ffffff\].p-4.w-\[50\%\].css-dev-only-do-not-override-1hpnbz2 {
+  max-width: 285px !important;
+  min-width: 285px !important;
+  width: 285px !important;
+}

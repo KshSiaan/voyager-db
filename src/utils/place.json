@@ -1,0 +1,62 @@
+[
+    {
+        "id": 1,
+        "title": "Visit the Majestic Mystic Mountains: A Nature Lover's Paradise",
+        "coins": 150,
+        "trophy": 3
+    },
+    {
+        "id": 2,
+        "title": "Explore the Enchanted Forest: Where Magic Meets Reality",
+        "coins": 200,
+        "trophy": 5
+    },
+    {
+        "id": 3,
+        "title": "Discover Crystal Lake: A Tranquil Escape into Nature",
+        "coins": 120,
+        "trophy": 2
+    },
+    {
+        "id": 4,
+        "title": "Uncover the Secrets of the Ancient Ruins: A Journey Through Time",
+        "coins": 300,
+        "trophy": 10
+    },
+    {
+        "id": 5,
+        "title": "Adventure in the Golden Desert: A Land of Wonders",
+        "coins": 250,
+        "trophy": 4
+    },
+    {
+        "id": 6,
+        "title": "Relax at Sunset Beach: The Ultimate Coastal Retreat",
+        "coins": 180,
+        "trophy": 3
+    },
+    {
+        "id": 7,
+        "title": "Brave the Frozen Tundra: A Test of Endurance and Spirit",
+        "coins": 220,
+        "trophy": 6
+    },
+    {
+        "id": 8,
+        "title": "Experience the Thrill of Thunder Valley: Nature's Roller Coaster",
+        "coins": 140,
+        "trophy": 2
+    },
+    {
+        "id": 9,
+        "title": "Venture into the Mystical Caverns: A Hidden World Awaits",
+        "coins": 190,
+        "trophy": 5
+    },
+    {
+        "id": 10,
+        "title": "Ascend to the Sky High Peaks: A Climber's Dream Destination",
+        "coins": 280,
+        "trophy": 8
+    }
+]

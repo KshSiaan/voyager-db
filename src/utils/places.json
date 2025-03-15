@@ -1,0 +1,108 @@
+{
+    "data": {
+      "countries": [
+        {
+          "name": "Finland",
+          "location": "Europe",
+          "color": "#FC5D88"
+        },
+        {
+          "name": "Italy",
+          "location": "Southern Europe",
+          "color": "#FFA94D"
+        },
+        {
+          "name": "Japan",
+          "location": "East Asia",
+          "color": "#8C78EA"
+        },
+        {
+          "name": "Brazil",
+          "location": "South America",
+          "color": "#FC5D88"
+        },
+        {
+          "name": "Australia",
+          "location": "Oceania",
+          "color": "#8C78EA"
+        }
+      ],
+      "cities": [
+        {
+          "name": "Helsinki",
+          "location": "Finland, Europe"
+        },
+        {
+          "name": "Rome",
+          "location": "Italy, Southern Europe"
+        },
+        {
+          "name": "Tokyo",
+          "location": "Japan, East Asia"
+        },
+        {
+          "name": "Rio de Janeiro",
+          "location": "Brazil, South America"
+        },
+        {
+          "name": "Sydney",
+          "location": "Australia, Oceania"
+        },
+        {
+          "name": "Paris",
+          "location": "France, Western Europe"
+        },
+        {
+          "name": "Toronto",
+          "location": "Canada, North America"
+        },
+        {
+          "name": "Cape Town",
+          "location": "South Africa, Africa"
+        }
+      ],
+      "attractions": [
+        {
+          "name": "Suomenlinna Fortress",
+          "location": "Helsinki",
+          "country": "Finland"
+        },
+        {
+          "name": "Colosseum",
+          "location": "Rome",
+          "country": "Italy"
+        },
+        {
+          "name": "Tokyo Skytree",
+          "location": "Tokyo",
+          "country": "Japan"
+        },
+        {
+          "name": "Christ the Redeemer",
+          "location": "Rio de Janeiro",
+          "country": "Brazil"
+        },
+        {
+          "name": "Sydney Opera House",
+          "location": "Sydney",
+          "country": "Australia"
+        },
+        {
+          "name": "Eiffel Tower",
+          "city": "Paris",
+          "country": "France"
+        },
+        {
+          "name": "CN Tower",
+          "location": "Toronto",
+          "country": "Canada"
+        },
+        {
+          "name": "Table Mountain",
+          "location": "Cape Town",
+          "country": "South Africa"
+        }
+      ]
+    }
+  }
+  
