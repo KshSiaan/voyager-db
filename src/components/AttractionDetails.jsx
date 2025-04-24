@@ -25,17 +25,17 @@ function AttractionDetails({ form, setForm }) {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
   };
-
+  const topic = localStorage.getItem("topic");
   return (
     <div className={`border border-gray90 rounded-2xl p-4`}>
       <h1 className={`text-black text-[20px] font-work font-semibold`}>
-        Fill in the Attraction Information
+        Fill in the {topic} Information
       </h1>
       <form action="" className={`mt-4`}>
         <div className={`mb-3`}>
           <input
             type="text"
-            placeholder="Enter Attraction Name"
+            placeholder={`Enter ${topic} Name`}
             className={`border border-90 focus:outline-none px-4 py-2 rounded-xl w-full`}
             name="name"
             value={form.name}

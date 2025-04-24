@@ -64,7 +64,7 @@ function InfoAndPricing({ form, setForm }) {
     }
     categorySetter();
   }, []);
-
+  const topic = localStorage.getItem("topic");
   // Handle input change for all
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -249,7 +249,7 @@ function InfoAndPricing({ form, setForm }) {
       >
         <input
           type="text"
-          placeholder="Attraction ID"
+          placeholder={`${topic} ID`}
           className={`w-full focus:outline-none`}
           name="attraction_id"
           // value={form.attraction_id}

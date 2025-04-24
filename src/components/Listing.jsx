@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import coin from "../assets/images/coin.png";
 import trophy from "../assets/images/trophy.png";
 import places from "../utils/places.json";
@@ -8,9 +8,17 @@ import InfoAndPricing from "./InfoAndPricing";
 import RewardsAndGamification from "./RewardsAndGamification";
 import ImageUpload from "./ImageUpload";
 import img from "../assets/images/place.png";
-import { postAttraction } from "../api/listing";
 import { useCookies } from "react-cookie";
-import { attractionReformation } from "../lib/reformation";
+import axios from "axios";
+import { BASE_URL, BASE_ONLYURL } from "../api/base";
+
+const debounce = (fn, delay) => {
+  let timer;
+  return function (...args) {
+    clearTimeout(timer);
+    timer = setTimeout(() => fn.apply(this, args), delay);
+  };
+};
 
 function Listing() {
   const [activePlace, setActivePlace] = useState(0);
@@ -23,74 +31,162 @@ function Listing() {
     useState(false);
   const [api, contextHolder] = notification.useNotification();
   const [cookies] = useCookies(["token"]);
-
+  const [filterPlace, setfilterPlace] = useState([]);
+  const [searchText, setSearchText] = useState("");
+  const debounceRef = useRef();
+  const [res, setRes] = useState(null);
+  const [specific, setSpecific] = useState(null);
+  const [specificID, setSpecificID] = useState(0);
+  const [specificData, setSpecificData] = useState(null);
+  const [amms, setAmms] = useState({
+    att: 0,
+    city: 0,
+    country: 0,
+  });
+  const [viewItem, setViewItem] = useState(null);
   const [attraction, setAttraction] = useState({
-    activity_levels: [], //
-    address: "", //
-    age: "", //
-    best_visit_times: [], //
-    category_id: null, //
-    city: "", //
-    coins: 0, //
-    country: "", //
-    description: "", //
-    keywords: [], //
-    latitude: 23.810331, //
-    location: "", //
-    longitude: 90.412521, //
-    must_visit_spots: [], //
     name: "", //
+    latitude: 23.810331, //
+    longitude: 90.412521, //
+    location: "", //
+    description: "", //
+    must_visit_spots: [], //
+    category_id: null, //
+    subcategories: [], //
+    address: "", //
+    country: "", //
+    city: "", //
+    age: "", //
     prices: [], //
+    visit_hours: [], //
+    top_activities: [], //
     short_description_about_fun_fact: "", //
     short_description_about_secret_tips: "", //
-    status: 0, //
-    subcategories: [], //
-    top_activities: [], //
     unique_features: [], //
-    visit_hours: [], //
-    // images: null, //
+    best_visit_times: [], //
+    activity_levels: [], //
+    keywords: [], //
     xp: 0, //
+    coins: 0, //
+    status: 1, //
+    images: [],
   });
-
-  // {
-  //   name: "Bangladesh",
-  //   attraction_id: "attraction#133d111",
-  //   latitude: 12.345678,
-  //   longitude: 98.765432,
-  //   location: "Central City",
-  //   description: "A wonderful attraction to visit.",
-  //   must_visit_spots: ["spot1", "spot2"],
-  //   category_id: 2,
-  //   subcategories: ["testCat", "testCat2"],
-  //   address: "123 Attraction Street",
-  //   country: "CountryName",
-  //   city: "CityName",
-  //   age: "All Ages",
-  //   prices: [200, 300],
-  //   visit_hours: ["9:00 PM", "10:00 PM"],
-  //   top_activities: ["Ride", "Tour"],
-  //   short_description_about_fun_fact: "Fun fact about this attraction",
-  //   short_description_about_secret_tips: "Secret tip to visit",
-  //   unique_features: ["Dance", "Detail"],
-  //   best_visit_times: ["summer", "winter"],
-  //   activity_levels: ["special", "wonderful"],
-  //   keywords: ["place", "visit"],
-  //   xp: 500,
-  //   coins: 1000,
-  //   status: 1,
-  // }
   console.log(attraction);
 
-  const filterPlace = () => {
-    if (activePlace === 0) {
-      return places?.data?.attractions;
+  useEffect(() => {
+    const filterPlacer = async () => {
+      try {
+        const callattraction = await axios.get(`${BASE_URL}/get-attraction`, {
+          headers: {
+            Authorization: `Bearer ${cookies.token}`,
+          },
+        });
+        const callcities = await axios.get(`${BASE_URL}/get-city`, {
+          headers: {
+            Authorization: `Bearer ${cookies.token}`,
+          },
+        });
+        const callcountry = await axios.get(`${BASE_URL}/get-country`, {
+          headers: {
+            Authorization: `Bearer ${cookies.token}`,
+          },
+        });
+
+        setAmms({
+          att: callattraction.data.data.total,
+          city: callcities.data.data.total,
+          country: callcountry.data.data.total,
+        });
+      } catch (error) {
+        console.error(error);
+      }
+
+      if (activePlace === 0) {
+        const callattraction = await axios.get(`${BASE_URL}/get-attraction`, {
+          headers: {
+            Authorization: `Bearer ${cookies.token}`,
+          },
+        });
+        setRes(callattraction.data.data);
+        setfilterPlace(callattraction.data.data.data);
+
+        // setfilterPlace(places?.data?.attractions);
+      }
+      if (activePlace === 1) {
+        const callcities = await axios.get(`${BASE_URL}/get-city`, {
+          headers: {
+            Authorization: `Bearer ${cookies.token}`,
+          },
+        });
+        setRes(callcities.data.data);
+        setfilterPlace(callcities.data.data.data);
+      }
+      if (activePlace === 2) {
+        const callcountry = await axios.get(`${BASE_URL}/get-country`, {
+          headers: {
+            Authorization: `Bearer ${cookies.token}`,
+          },
+        });
+        setRes(callcountry.data.data);
+        setfilterPlace(callcountry.data.data.data);
+
+        // setfilterPlace(places?.data?.attractions);
+      }
+    };
+    filterPlacer();
+  }, [activePlace]);
+
+  const fetchData = async (search = "", page = 1) => {
+    try {
+      let endpoint = "";
+      if (activePlace === 0) endpoint = "get-attraction";
+      else if (activePlace === 1) endpoint = "get-city";
+      else if (activePlace === 2) endpoint = "get-country";
+
+      const res = await axios.get(
+        `${BASE_URL}/${endpoint}?search=${search}&page=${page}`,
+        {
+          headers: {
+            Authorization: `Bearer ${cookies.token}`,
+          },
+        }
+      );
+
+      setRes(res.data.data);
+      setfilterPlace(res.data.data.data);
+    } catch (err) {
+      console.error("Fetch error:", err);
     }
-    if (activePlace === 1) {
-      return places?.data?.cities;
+  };
+
+  const fetchSpecificData = async (search = "") => {
+    try {
+      let endpoint = "";
+      if (activePlace === 0) endpoint = "get-attraction";
+      else if (activePlace === 1) endpoint = "get-city";
+      else if (activePlace === 2) endpoint = "get-country";
+
+      const res = await axios.get(`${BASE_URL}/${endpoint}?search=${search}`, {
+        headers: {
+          Authorization: `Bearer ${cookies.token}`,
+        },
+      });
+      // console.log(res.data.data);
+
+      setSpecificData(res.data.data.data[0]);
+    } catch (err) {
+      console.error("Fetch error:", err);
     }
-    if (activePlace === 2) {
-      return places?.data?.countries;
-    }
+  };
+
+  useEffect(() => {
+    debounceRef.current = debounce(fetchData, 300);
+  }, [activePlace]);
+
+  const handleChangeSearch = (e) => {
+    const val = e.target.value;
+    setSearchText(val);
+    debounceRef.current(val);
   };
 
   const showModal = () => {
@@ -115,34 +211,94 @@ function Listing() {
   };
 
   const handleContinueAddPlace = async () => {
-    if (currentStep === addPlaceSteps.length - 1) {
-      setIsAddPlaceModalOpen(false);
+    const formData = new FormData();
+
+    Object.entries(attraction).forEach(([key, value]) => {
+      if (value === null || value === undefined) return;
+
+      if (Array.isArray(value)) {
+        if (key === "images") {
+          // images assumed to be File objects
+          value.forEach((file) => {
+            formData.append("images[]", file);
+          });
+        } else {
+          value.forEach((item) => {
+            formData.append(`${key}[]`, item);
+          });
+        }
+      } else {
+        formData.append(key, value);
+      }
+    });
+    if (activePlace === 0) {
+      if (currentStep === addPlaceSteps.length - 1) {
+        try {
+          const call = await axios.post(
+            `http://161.35.162.41:8000/api/attraction`,
+            formData,
+            {
+              headers: {
+                Authorization: `Bearer ${cookies.token}`,
+              },
+            }
+          );
+          // console.log(call);
+          api["success"]({
+            message: call.data.message,
+            placement: "top",
+          });
+        } catch (error) {
+          console.error(error);
+        }
+
+        setIsAddPlaceModalOpen(false);
+      }
+    } else if (activePlace === 1) {
+      if (currentStep === addPlaceSteps.length - 1) {
+        try {
+          const call = await axios.post(
+            `http://161.35.162.41:8000/api/city`,
+            formData,
+            {
+              headers: {
+                Authorization: `Bearer ${cookies.token}`,
+              },
+            }
+          );
+          // console.log(call);
+          api["success"]({
+            message: call.data.message,
+            placement: "top",
+          });
+        } catch (error) {
+          console.error(error);
+        }
+
+        setIsAddPlaceModalOpen(false);
+      }
+    } else {
       try {
-        const call = await postAttraction(cookies.token, attraction);
-        console.log("from form");
-        console.log(call);
+        const call = await axios.post(
+          `http://161.35.162.41:8000/api/country`,
+          formData,
+          {
+            headers: {
+              Authorization: `Bearer ${cookies.token}`,
+            },
+          }
+        );
+        api["success"]({
+          message: call.data.message,
+          placement: "top",
+        });
       } catch (error) {
         console.error(error);
       }
-      setCurrentStep(0);
-      api["success"]({
-        message: `A new ${
-          activePlace === 0
-            ? "Attraction"
-            : activePlace === 1
-            ? "City"
-            : "Place"
-        } has been added`,
-        placement: "top",
-        description: `${
-          activePlace === 0
-            ? "Attraction"
-            : activePlace === 1
-            ? "City"
-            : "Place"
-        } has been added successfully`,
-      });
+
+      setIsAddPlaceModalOpen(false);
     }
+
     if (currentStep < addPlaceSteps.length - 1) {
       setCurrentStep((prevStep) => prevStep + 1);
     }
@@ -184,6 +340,10 @@ function Listing() {
   //   });
   // };
 
+  if (!res) {
+    return <>Just a second..</>;
+  }
+
   return (
     <div>
       {contextHolder}
@@ -217,6 +377,8 @@ function Listing() {
                 placeholder="Search from listing..."
                 className="w-full py-4 text-black text-sm font-work"
                 style={{ outline: "none" }}
+                value={searchText}
+                onChange={handleChangeSearch}
               />
             </div>
           </div>
@@ -241,7 +403,7 @@ function Listing() {
                   activePlace === 0 ? "bg-primary" : "bg-gray100"
                 } px-0.5 rounded text-white text-xs font-work`}
               >
-                24
+                {amms.att}
               </span>
             </div>
 
@@ -263,7 +425,7 @@ function Listing() {
                   activePlace === 1 ? "bg-primary" : "bg-gray100"
                 }  px-0.5 rounded text-white text-xs font-work`}
               >
-                24
+                {amms.city}
               </span>
             </div>
 
@@ -285,7 +447,7 @@ function Listing() {
                   activePlace === 2 ? "bg-primary" : "bg-gray100"
                 }  px-0.5 rounded text-white text-xs font-work`}
               >
-                96
+                {amms.country}
               </span>
             </div>
           </div>
@@ -303,7 +465,17 @@ function Listing() {
             >
               <svg
                 className={`cursor-pointer`}
-                onClick={() => handleAddPlace(activePlace)}
+                onClick={() => {
+                  localStorage.setItem(
+                    "topic",
+                    activePlace === 0
+                      ? "Attraction"
+                      : activePlace === 1
+                      ? "City"
+                      : "Country"
+                  );
+                  handleAddPlace(activePlace);
+                }}
                 width="49"
                 height="48"
                 viewBox="0 0 49 48"
@@ -344,7 +516,7 @@ function Listing() {
                   : "Country"}
               </h1>
             </div>
-            {filterPlace()?.map((place, index) => (
+            {filterPlace?.map((place, index) => (
               <div
                 className={`cursor-pointer border-r ${
                   activePlace === 0
@@ -360,13 +532,20 @@ function Listing() {
                 <div
                   className="h-32 bg-cover bg-no-repeat rounded-xl overflow-hidden flex flex-col items-end"
                   style={{
-                    backgroundImage:
-                      "url(https://images.unsplash.com/photo-1557804506-669a67965ba0?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1267&q=80)",
+                    backgroundImage: `url(${
+                      place?.images[0]
+                        ? BASE_ONLYURL + place.images[0]
+                        : "https://images.unsplash.com/photo-1557804506-669a67965ba0?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1267&q=80"
+                    })`,
                   }}
                 >
                   <svg
                     className="mt-2 mr-2 cursor-pointer"
-                    onClick={() => setOptionModal(true)}
+                    onClick={() => {
+                      setSpecific(place?.name);
+                      setSpecificID(place?.id);
+                      setOptionModal(true);
+                    }}
                     width="41"
                     height="40"
                     viewBox="0 0 41 40"
@@ -410,7 +589,7 @@ function Listing() {
                       <p
                         className={`text-gray100 text-xs font-normal font-work`}
                       >
-                        50 coins
+                        {place?.coins} coins
                       </p>
                     </div>
                     <div className={`flex flex-row items-center gap-1.5`}>
@@ -418,7 +597,7 @@ function Listing() {
                       <p
                         className={`text-gray100 text-xs font-normal font-work`}
                       >
-                        50 coins
+                        {place?.xp} xp
                       </p>
                     </div>
                   </div>
@@ -430,17 +609,26 @@ function Listing() {
         <div className={`mt-8 flex-row flex items-center justify-between`}>
           <div>
             <h1 className={`text-black text-sm font-nunito font-bold`}>
-              page 1 of 10
+              page {res.current_page} of {res.last_page}
             </h1>
           </div>
           <div className="flex flex-row items-center gap-3">
             <button
-              className={`border border-gray100 rounded-xl px-4 py-2 cursor-pointer`}
+              className="border border-gray100 rounded-xl px-4 py-2 cursor-pointer"
+              disabled={res.current_page <= 1}
+              onClick={() => {
+                if (res.current_page > 1) {
+                  fetchData(undefined, res.current_page - 1);
+                }
+              }}
             >
               Previous
             </button>
             <button
-              className={`border border-gray100 rounded-xl px-4 py-2 cursor-pointer`}
+              className="border border-gray100 rounded-xl px-4 py-2 cursor-pointer"
+              onClick={() => {
+                fetchData(undefined, res.current_page + 1);
+              }}
             >
               Next
             </button>
@@ -483,7 +671,26 @@ function Listing() {
         <div className="flex flex-row items-center gap-3 justify-between mt-4">
           <button
             className={` rounded-xl px-4 py-2 cursor-pointer font-semibold font-work text-danger`}
-            onClick={handleOk}
+            onClick={async () => {
+              try {
+                const call = await axios.delete(
+                  `${BASE_URL}/delete-attraction?attraction_id=${specificID}`,
+                  {
+                    headers: {
+                      Authorization: `Bearer ${cookies.token}`,
+                    },
+                  }
+                );
+                api["success"]({
+                  message: call.data.message,
+                  placement: "top",
+                });
+                fetchData();
+              } catch (error) {
+                console.error(error);
+              }
+              handleOk();
+            }}
           >
             Delete
           </button>
@@ -625,7 +832,9 @@ function Listing() {
         <div className="mt-4">
           <h1
             className={`text-title text-sm font-work font-bold cursor-pointer mb-2 hover:opacity-70`}
-            onClick={() => {
+            onClick={async () => {
+              fetchSpecificData(specific);
+
               setIsViewDetailsModalVisible(true);
               setOptionModal(false);
             }}
@@ -668,7 +877,7 @@ function Listing() {
           </h1>
         </div>
       </Modal>
-
+      {/* HELLBORN  */}
       <Modal
         open={isViewDetailsModalVisible}
         onOk={() => setIsViewDetailsModalVisible(false)}
@@ -696,7 +905,7 @@ function Listing() {
                 Name
               </h2>
               <h2 className="text-title text-base font-work font-normal">
-                Colosseum
+                {specificData?.name}
               </h2>
             </div>
             <div>
@@ -704,7 +913,7 @@ function Listing() {
                 Location Name
               </h2>
               <h2 className="text-title text-base font-work font-normal">
-                Rome
+                {specificData?.location}
               </h2>
             </div>
             <div>
@@ -712,12 +921,7 @@ function Listing() {
                 Description
               </h2>
               <h2 className="text-title text-base font-work font-normal">
-                Lorem Ipsum is simply dummy text of the printing and typesetting
-                industry. Lorem Ipsum has been the industry's standard dummy
-                text ever since the 1500s, when an unknown printer took a galley
-                of type and scrambled it to make a type specimen book. It has
-                survived not only five centuries, but also the leap into
-                electronic typesetting, remaining essentially unchanged.
+                {specificData?.description}
               </h2>
             </div>
             <div>
@@ -730,7 +934,7 @@ function Listing() {
                 ID
               </h2>
               <h2 className="text-title text-base font-work font-normal">
-                #23564
+                #{specificData?.attraction_id}
               </h2>
             </div>
             <div>
@@ -738,12 +942,12 @@ function Listing() {
                 Must Visit Spots
               </h2>
               <div className="mt-1 gap-2 flex flex-row">
-                {[...Array(5)].map((_, index) => (
+                {specificData?.must_visit_spots.map((x, index) => (
                   <span
                     className="bg-secondary px-3 py-1.5 rounded-full text-title font-normal"
                     key={index}
                   >
-                    Spain
+                    {x}
                   </span>
                 ))}
               </div>
@@ -753,7 +957,7 @@ function Listing() {
                 Category
               </h2>
               <h2 className="text-title text-base font-work font-normal">
-                Adventure
+                {specificData?.category.name}
               </h2>
             </div>
             <div>
@@ -761,15 +965,7 @@ function Listing() {
                 Address
               </h2>
               <h2 className="text-title text-base font-work font-normal">
-                Rome, Italy
-              </h2>
-            </div>
-            <div>
-              <h2 className="text-title text-base font-work font-semibold">
-                Address
-              </h2>
-              <h2 className="text-title text-base font-work font-normal">
-                Rome, Italy
+                {specificData?.address}
               </h2>
             </div>
             <div>
@@ -777,7 +973,7 @@ function Listing() {
                 Country
               </h2>
               <h2 className="text-title text-base font-work font-normal">
-                Bangladesh
+                {specificData?.country}
               </h2>
             </div>
             <div>
@@ -785,7 +981,7 @@ function Listing() {
                 City
               </h2>
               <h2 className="text-title text-base font-work font-normal">
-                Dhaka
+                {specificData?.city}
               </h2>
             </div>
             <div>
@@ -793,7 +989,7 @@ function Listing() {
                 Age
               </h2>
               <h2 className="text-title text-base font-work font-normal">
-                8-12
+                {specificData?.age}
               </h2>
             </div>
             <div>
@@ -801,12 +997,12 @@ function Listing() {
                 Pricing
               </h2>
               <div className="mt-1 gap-2 flex flex-row">
-                {[...Array(5)].map((_, index) => (
+                {specificData?.prices.map((x, index) => (
                   <span
                     className="bg-secondary px-3 py-1.5 rounded-full text-title font-normal"
                     key={index}
                   >
-                    $110
+                    {x}
                   </span>
                 ))}
               </div>
@@ -816,12 +1012,12 @@ function Listing() {
                 Visiting Hours
               </h2>
               <div className="mt-1 gap-2 flex flex-row">
-                {[...Array(5)].map((_, index) => (
+                {specificData?.visit_hours.map((x, index) => (
                   <span
                     className="bg-secondary px-3 py-1.5 rounded-full text-title font-normal"
                     key={index}
                   >
-                    9am - 5pm
+                    {x}
                   </span>
                 ))}
               </div>
@@ -831,12 +1027,12 @@ function Listing() {
                 Top Activities
               </h2>
               <div className="mt-1 gap-2 flex flex-row">
-                {[...Array(5)].map((_, index) => (
+                {specificData?.top_activities.map((x, index) => (
                   <span
                     className="bg-secondary px-3 py-1.5 rounded-full text-title font-normal"
                     key={index}
                   >
-                    Swimming
+                    {x}
                   </span>
                 ))}
               </div>
@@ -846,12 +1042,7 @@ function Listing() {
                 Fun Fact
               </h2>
               <h2 className="text-title text-base font-work font-normal">
-                Lorem Ipsum is simply dummy text of the printing and typesetting
-                industry. Lorem Ipsum has been the industry's standard dummy
-                text ever since the 1500s, when an unknown printer took a galley
-                of type and scrambled it to make a type specimen book. It has
-                survived not only five centuries, but also the leap into
-                electronic typesetting, remaining essentially unchanged.
+                {specificData?.short_description_about_fun_fact}
               </h2>
             </div>
             <div>
@@ -859,12 +1050,7 @@ function Listing() {
                 Secret Tips
               </h2>
               <h2 className="text-title text-base font-work font-normal">
-                Lorem Ipsum is simply dummy text of the printing and typesetting
-                industry. Lorem Ipsum has been the industry's standard dummy
-                text ever since the 1500s, when an unknown printer took a galley
-                of type and scrambled it to make a type specimen book. It has
-                survived not only five centuries, but also the leap into
-                electronic typesetting, remaining essentially unchanged.
+                {specificData?.short_description_about_secret_tips}
               </h2>
             </div>
             <div>
@@ -872,12 +1058,12 @@ function Listing() {
                 Unique Features
               </h2>
               <div className="mt-1 gap-2 flex flex-row">
-                {[...Array(5)].map((_, index) => (
+                {specificData?.unique_features.map((x, index) => (
                   <span
                     className="bg-secondary px-3 py-1.5 rounded-full text-title font-normal"
                     key={index}
                   >
-                    Swimming
+                    {x}
                   </span>
                 ))}
               </div>
@@ -887,7 +1073,7 @@ function Listing() {
                 Best time to visit
               </h2>
               <h2 className="text-title text-base font-work font-normal">
-                Summer
+                {specificData?.best_visit_times}
               </h2>
             </div>
             <div>
@@ -895,7 +1081,7 @@ function Listing() {
                 Activity Level
               </h2>
               <h2 className="text-title text-base font-work font-normal">
-                Relaxation
+                {specificData?.activity_levels}
               </h2>
             </div>
             <div>
@@ -903,12 +1089,12 @@ function Listing() {
                 Keywords
               </h2>
               <div className="mt-1 gap-2 flex flex-row">
-                {[...Array(5)].map((_, index) => (
+                {specificData?.keywords.map((x, index) => (
                   <span
                     className="bg-secondary px-3 py-1.5 rounded-full text-title font-normal"
                     key={index}
                   >
-                    Swimming
+                    {x}
                   </span>
                 ))}
               </div>
@@ -918,7 +1104,7 @@ function Listing() {
                 Number of XP
               </h2>
               <h2 className="text-title text-base font-work font-normal">
-                350
+                {specificData?.xp}
               </h2>
             </div>
             <div>
@@ -926,13 +1112,13 @@ function Listing() {
                 Number of Coins
               </h2>
               <h2 className="text-title text-base font-work font-normal">
-                400
+                {specificData?.coins}
               </h2>
             </div>
             <div className="flex flex-row items-center gap-3">
-              {[...Array(3)].map((_, index) => (
+              {specificData?.images.map((x, index) => (
                 <img
-                  src={img}
+                  src={BASE_ONLYURL + x}
                   alt=""
                   className="rounded-2xl w-[32%]"
                   key={index}

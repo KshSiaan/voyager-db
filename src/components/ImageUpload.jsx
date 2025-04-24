@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { PlusOutlined } from "@ant-design/icons";
 import { Image, Upload } from "antd";
 
-const ImageUpload = () => {
+const ImageUpload = ({ form, setForm }) => {
   const [previewOpen, setPreviewOpen] = useState(false);
   const [previewImage, setPreviewImage] = useState("");
   const [fileList, setFileList] = useState([]);
@@ -21,7 +21,11 @@ const ImageUpload = () => {
     }
   };
 
-  const handleChange = ({ fileList: newFileList }) => setFileList(newFileList);
+  const handleChange = ({ fileList: newFileList }) => {
+    setFileList(newFileList);
+    const onlyFiles = newFileList.map((file) => file.originFileObj);
+    setForm({ ...form, images: onlyFiles });
+  };
 
   return (
     <>
@@ -34,6 +38,7 @@ const ImageUpload = () => {
         fileList={fileList}
         onPreview={handlePreview}
         onChange={handleChange}
+        beforeUpload={() => false}
       >
         {fileList.length < 8 && (
           <div>
